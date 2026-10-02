@@ -43,3 +43,9 @@ seconds.
 
 The case battery is only reported while a bud sits in the case. After the
 buds come out, the last reading stays on screen marked "last seen".
+
+## License
+
+GPL-3.0-or-later, see [LICENSE](LICENSE). Parts of `src/link.rs` are adapted
+from pbpctrl and omarchy-pixelbuds under the MIT License; their notices are
+in [NOTICE](NOTICE).
