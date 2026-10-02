@@ -30,6 +30,8 @@ pub enum LinkEvent {
     /// Free-form state for the header while there is no session.
     Status(String),
     Device { name: String, address: Address },
+    /// No suitable device is connected over Bluetooth.
+    Absent,
     Connected,
     Disconnected,
     Runtime(RuntimeInfo),
@@ -68,6 +70,7 @@ pub async fn run(
         let dev = match find_device(&session, wanted).await {
             Ok(Some(dev)) => dev,
             Ok(None) => {
+                let _ = events.send(LinkEvent::Absent);
                 let _ = events.send(LinkEvent::Status(
                     "Waiting for Pixel Buds to connect…".into(),
                 ));
@@ -76,6 +79,7 @@ pub async fn run(
                 continue;
             }
             Err(e) => {
+                let _ = events.send(LinkEvent::Absent);
                 let _ = events.send(LinkEvent::Status(format!("Bluetooth error: {e}")));
                 tokio::time::sleep(Duration::from_secs(3)).await;
                 continue;

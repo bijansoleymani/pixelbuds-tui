@@ -70,6 +70,10 @@ const ANC_ORDER: [AncState; 4] = [
 pub struct App {
     pub status: String,
     pub device: Option<(String, Address)>,
+    /// Connected over Bluetooth, whether or not the Maestro session is up
+    /// (it drops briefly whenever the buds hand off between each other).
+    pub present: bool,
+    /// The Maestro session is up and settings can be written.
     pub connected: bool,
 
     pub left: Option<Battery>,
@@ -107,6 +111,7 @@ impl App {
         Self {
             status: "Starting…".into(),
             device: None,
+            present: false,
             connected: false,
             left: None,
             right: None,
@@ -136,7 +141,11 @@ impl App {
     pub fn apply(&mut self, event: LinkEvent) {
         match event {
             LinkEvent::Status(s) => self.status = s,
-            LinkEvent::Device { name, address } => self.device = Some((name, address)),
+            LinkEvent::Device { name, address } => {
+                self.device = Some((name, address));
+                self.present = true;
+            }
+            LinkEvent::Absent => self.present = false,
             LinkEvent::Connected => {
                 self.connected = true;
                 self.status = "Connected".into();

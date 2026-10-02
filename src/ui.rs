@@ -21,7 +21,11 @@ const WIDTH: u16 = 64;
 const MESSAGE_TTL: Duration = Duration::from_secs(4);
 
 pub fn draw(f: &mut Frame, app: &App) {
-    let area = f.area();
+    draw_in(f, f.area(), app);
+}
+
+/// Draws into `area` only, so a host can put something above or around it.
+pub fn draw_in(f: &mut Frame, area: Rect, app: &App) {
     let col = centered_col(area, WIDTH);
 
     let chunks = Layout::default()
