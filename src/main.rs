@@ -3,21 +3,17 @@
 //! Talks to the buds over Google's Maestro protocol (the one the Pixel Buds
 //! app uses), via the `maestro` crate from qzed/pbpctrl.
 
-mod app;
-mod link;
-mod ui;
-
 use std::time::Duration;
 
 use anyhow::Result;
 use bluer::Address;
 use clap::Parser;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::event::{Event, EventStream};
 use futures::StreamExt;
-use maestro::service::settings::AncState;
 use tokio::sync::mpsc;
 
-use app::App;
+use pixelbuds_tui::app::App;
+use pixelbuds_tui::{handle_key, link, ui};
 
 #[derive(Parser)]
 #[command(version, about)]
@@ -57,7 +53,11 @@ async fn main() -> Result<()> {
                         app.apply(ev);
                     }
                 }
-                Some(ev) = keys.next() => handle_event(&mut app, ev?),
+                Some(ev) = keys.next() => {
+                    if let Event::Key(key) = ev? {
+                        handle_key(&mut app, key);
+                    }
+                }
                 _ = tick.tick() => {}
             }
         }
@@ -67,34 +67,4 @@ async fn main() -> Result<()> {
 
     ratatui::restore();
     result
-}
-
-fn handle_event(app: &mut App, event: Event) {
-    let Event::Key(key) = event else { return };
-    if key.kind != KeyEventKind::Press {
-        return;
-    }
-    if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
-        app.quit = true;
-        return;
-    }
-    if app.show_info {
-        app.show_info = false;
-        return;
-    }
-    match key.code {
-        KeyCode::Char('q') | KeyCode::Esc => app.quit = true,
-        KeyCode::Up | KeyCode::Char('k') => app.up(),
-        KeyCode::Down | KeyCode::Char('j') | KeyCode::Tab => app.down(),
-        KeyCode::Left | KeyCode::Char('h') => app.adjust(false),
-        KeyCode::Right | KeyCode::Char('l') => app.adjust(true),
-        KeyCode::Enter | KeyCode::Char(' ') => app.activate(),
-        KeyCode::Char('r') => app.reset(),
-        KeyCode::Char('i') => app.show_info = true,
-        KeyCode::Char('1') => app.set_anc(AncState::Off),
-        KeyCode::Char('2') => app.set_anc(AncState::Active),
-        KeyCode::Char('3') => app.set_anc(AncState::Aware),
-        KeyCode::Char('4') => app.set_anc(AncState::Adaptive),
-        _ => {}
-    }
 }
