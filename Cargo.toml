@@ -1,0 +1,23 @@
+[package]
+name = "pixelbuds-tui"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Terminal UI for Google Pixel Buds Pro / Pro 2: battery, ANC, EQ and settings over the Maestro protocol"
+
+[dependencies]
+# Maestro protocol client from pbpctrl (https://github.com/qzed/pbpctrl).
+maestro = { git = "https://github.com/qzed/pbpctrl", rev = "2620367", package = "maestro" }
+anyhow = "1"
+bluer = { version = "0.17", features = ["bluetoothd", "rfcomm"] }
+clap = { version = "4", features = ["derive"] }
+crossterm = { version = "0.28", features = ["event-stream"] }
+futures = "0.3"
+ratatui = "0.29"
+tokio = { version = "1", features = ["rt", "macros", "sync", "time"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 8
+strip = true
