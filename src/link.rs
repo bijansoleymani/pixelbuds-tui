@@ -1,14 +1,14 @@
 //! Owns the Bluetooth side: finds the Pixel Buds, opens the Maestro RFCOMM
-//!
-//! Parts of this file are adapted from pbpctrl (cli/src/bt.rs) and
-//! omarchy-pixelbuds (daemon/pixelbudsd/src/maestro_link.rs), both MIT;
-//! see NOTICE.
 //! channel, and turns what the buds report into `LinkEvent`s for the UI.
 //! Setting writes come back the other way as `SettingValue`s.
 //!
 //! The Maestro session resets whenever the buds hand processing off between
 //! each other (pbpctrl documents this as `os error 104`), so every failure
 //! just waits briefly and reconnects.
+//!
+//! Parts of this file are adapted from pbpctrl (cli/src/bt.rs) and
+//! omarchy-pixelbuds (daemon/pixelbudsd/src/maestro_link.rs), both MIT;
+//! see NOTICE.
 
 use std::time::Duration;
 
